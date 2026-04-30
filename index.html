@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FIR News - Últimas Notícias</title>
+    <meta name="description" content="Portal de notícias com política, esportes, games, tecnologia e cotidiano.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="http://localhost/firnews/">
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <meta name="theme-color" content="#0f172a">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FIR News">
+    <meta property="og:title" content="FIR News - Últimas Notícias">
+    <meta property="og:description" content="Portal de notícias com política, esportes, games, tecnologia e cotidiano.">
+    <meta property="og:url" content="http://localhost/firnews/">
+    <meta property="og:image" content="http://localhost/firnews/assets/images/og-default.jpg">
+    <meta property="og:locale" content="pt_BR">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@firnews">
+    <meta name="twitter:title" content="FIR News - Últimas Notícias">
+    <meta name="twitter:description" content="Portal de notícias com política, esportes, games, tecnologia e cotidiano.">
+    <meta name="twitter:image" content="http://localhost/firnews/assets/images/og-default.jpg">
+
+    <script type="application/ld+json" id="structured-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsMediaOrganization",
+      "name": "FIR News",
+      "url": "http://localhost/firnews/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "http://localhost/firnews/busca?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="./assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Breaking news ticker -->
+    <div id="breaking-bar" class="d-none">
+        <div class="container d-flex align-items-center gap-3 py-1">
+            <span class="breaking-label">
+                <i class="bi bi-broadcast-pin me-1"></i>Urgente
+            </span>
+            <div class="breaking-ticker-wrap">
+                <span id="breaking-text" class="breaking-ticker"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header id="main-header">
+
+        <!-- Topo -->
+        <div class="header-top">
+            <div class="container d-flex align-items-center justify-content-between gap-3 py-3">
+
+                <a href="/firnews/" data-link id="portal-brand" class="brand-logo text-decoration-none">
+                    <span class="brand-fir">FIR</span><span class="brand-news">News</span>
+                </a>
+
+                <form class="search-form flex-grow-1"
+                    style="max-width: 420px;"
+                    action="/busca"
+                    method="get"
+                    role="search"
+                    id="search-form">
+                    <div class="search-inner">
+                        <i class="bi bi-search search-icon"></i>
+                        <input
+                            type="search"
+                            name="q"
+                            class="search-input"
+                            placeholder="Buscar notícias..."
+                            aria-label="Buscar notícias"
+                            id="search-input"
+                        >
+                    </div>
+                </form>
+
+                <button id="theme-toggle" class="theme-btn" aria-label="Alternar tema">
+                    <i class="bi bi-moon-fill" id="theme-icon"></i>
+                </button>
+
+            </div>
+        </div>
+
+        <!-- Barra de navegação de categorias -->
+        <nav class="header-nav" aria-label="Categorias">
+            <div class="container d-flex align-items-center justify-content-between">
+
+                <button class="nav-mobile-toggle d-lg-none"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#portalMenu"
+                    aria-controls="portalMenu"
+                    aria-expanded="false"
+                    aria-label="Abrir categorias">
+                    <i class="bi bi-grid me-1"></i> Categorias
+                    <i class="bi bi-chevron-down ms-1"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="portalMenu">
+                    <ul class="nav-categories" id="category-menu" role="list">
+                        <!-- demais categorias geradas pelo app.js -->
+                        <li>
+                            <a href="/firnews/categoria/games"
+                                data-link
+                                data-category="games"
+                                class="nav-cat-link nav-cat-games">
+                                <i class="bi bi-controller me-1"></i>Games
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <div class="container">
+            <nav aria-label="Você está em">
+                <ol class="breadcrumb mb-0" id="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/firnews/" data-link>
+                            <i class="bi bi-house-fill"></i>
+                        </a>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Conteúdo principal -->
+    <main class="container py-4" id="app" role="main">
+        <div class="text-center py-5" id="initial-loader">
+            <div class="fir-spinner" role="status">
+                <span class="visually-hidden">Carregando...</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scroll infinito sentinel -->
+    <div id="scroll-sentinel" class="scroll-sentinel text-center py-4" aria-hidden="true">
+        <div class="fir-spinner d-none" id="scroll-loader">
+            <span class="visually-hidden">Carregando mais notícias...</span>
+        </div>
+    </div>
+
+    <!-- Botão voltar ao topo -->
+    <button id="back-to-top" class="back-to-top d-none" aria-label="Voltar ao topo" title="Voltar ao topo">
+        <i class="bi bi-arrow-up-short"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer id="main-footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="row gy-5">
+
+                    <div class="col-lg-4">
+                        <div class="footer-brand mb-3">
+                            <span class="brand-fir">FIR</span><span class="brand-news">News</span>
+                        </div>
+                        <p class="footer-desc">
+                            Cobertura completa de política, esportes, games, tecnologia e o que mais importa no seu dia.
+                        </p>
+                        <div class="social-links mt-4">
+                            <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                            <a href="#" aria-label="X/Twitter"><i class="bi bi-twitter-x"></i></a>
+                            <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                            <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                            <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-4">
+                        <h6 class="footer-section-title">Editorias</h6>
+                        <ul class="footer-links" id="footer-category-links">
+                            <li>
+                                <a href="/firnews/categoria/games" data-link>
+                                    <i class="bi bi-controller"></i> Games
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/firnews/categoria/tecnologia" data-link>
+                                    <i class="bi bi-cpu"></i> Tecnologia
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/firnews/categoria/esportes" data-link>
+                                    <i class="bi bi-trophy"></i> Esportes
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/firnews/categoria/politica" data-link>
+                                    <i class="bi bi-bank"></i> Política
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-4">
+                        <h6 class="footer-section-title">Portal</h6>
+                        <ul class="footer-links">
+                            <li><a href="#"><i class="bi bi-people"></i> Sobre nós</a></li>
+                            <li><a href="#"><i class="bi bi-person-badge"></i> Equipe</a></li>
+                            <li><a href="#"><i class="bi bi-envelope"></i> Contato</a></li>
+                            <li><a href="#"><i class="bi bi-shield-check"></i> Privacidade</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span>
+                    © 2026 <strong id="portal-footer-name">FIR News</strong>.
+                    Todos os direitos reservados.
+                </span>
+                <span class="footer-credits">
+                    Desenvolvido por Fellipe, Izabella & Renato
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./assets/js/config.js?v=3"></script>
+    <script src="./assets/js/app.js?v=3"></script>
+
+    <script>
+        // Dark / Light mode
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon   = document.getElementById('theme-icon');
+        const htmlEl      = document.documentElement;
+
+        const saved = localStorage.getItem('fir-theme') || 'light';
+        htmlEl.setAttribute('data-bs-theme', saved);
+        themeIcon.className = saved === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+
+        themeToggle.addEventListener('click', () => {
+            const next = htmlEl.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-bs-theme', next);
+            localStorage.setItem('fir-theme', next);
+            themeIcon.className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        });
+
+        // Voltar ao topo
+        const backBtn = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            backBtn.classList.toggle('d-none', window.scrollY < 500);
+        }, { passive: true });
+        backBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Header com sombra no scroll
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('header-scrolled', window.scrollY > 10);
+        }, { passive: true });
+    </script>
+
+</body>
+</html>
