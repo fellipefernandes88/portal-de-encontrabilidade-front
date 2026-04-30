@@ -1,1 +1,4 @@
 .tmb/
+
+# Webhook deploy script
+deploy.php
