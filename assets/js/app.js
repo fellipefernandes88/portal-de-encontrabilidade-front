@@ -86,7 +86,7 @@ function router() {
     const categoryMatch = path.match(/^\/categoria\/([^/]+)\/?$/);
 
     // Home
-    if (path === '/' || path === '') {
+    if (path === '/' || path === '' || path === '/index.html') {
         renderHome();
         return;
     }
@@ -516,7 +516,7 @@ function renderNotFound() {
         <section class="bg-white rounded-4 shadow-sm p-5 text-center">
             <h1 class="fw-bold mb-3">404</h1>
             <p class="text-muted mb-4">Página não encontrada.</p>
-            <a href="${BASE_PATH}/" data-link class="btn btn-dark">Voltar para a home</a>
+            <a href="${BASE_PATH}" data-link class="btn btn-dark">Voltar para a home</a>
         </section>
     `;
 }
