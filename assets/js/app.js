@@ -263,7 +263,6 @@ app.innerHTML = `
  * Isso simula scroll infinito na home.
  */
 function appendHomeBatch() {
-    function appendHomeBatch() {
     const grid = document.getElementById('home-grid');
     if (!grid) return;
 
@@ -308,7 +307,6 @@ function appendHomeBatch() {
     }
 
     state.homeCursor += state.homeBatch;
-}
 }
 
 /**
