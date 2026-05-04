@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-bs-theme="light">
+<html lang="pt-BR" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -257,7 +257,7 @@
         const themeIcon   = document.getElementById('theme-icon');
         const htmlEl      = document.documentElement;
 
-        const saved = localStorage.getItem('fir-theme') || 'light';
+        const saved = localStorage.getItem('fir-theme') || 'dark';
         htmlEl.setAttribute('data-bs-theme', saved);
         themeIcon.className = saved === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
 
@@ -267,21 +267,6 @@
             localStorage.setItem('fir-theme', next);
             themeIcon.className = next === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
         });
-
-        // Voltar ao topo
-        const backBtn = document.getElementById('back-to-top');
-        window.addEventListener('scroll', () => {
-            backBtn.classList.toggle('d-none', window.scrollY < 500);
-        }, { passive: true });
-        backBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Header com sombra no scroll
-        const header = document.getElementById('main-header');
-        window.addEventListener('scroll', () => {
-            header.classList.toggle('header-scrolled', window.scrollY > 10);
-        }, { passive: true });
     </script>
 
 </body>

@@ -232,26 +232,26 @@ function renderHomeSkeleton() {
  * Estrutura principal da home.
  */
 function renderHomeLayout() {
-    app.innerHTML = `
-        <section class="mb-5">
-            <div class="bg-white rounded-4 shadow-sm p-4 p-md-5">
-                <h1 class="hero-title fw-bold mb-3">Últimas notícias do ${escapeHtml(PORTAL_NAME)}</h1>
-                <p class="lead text-muted mb-0">
-                    Política, esportes, finanças, tecnologia e os principais destaques do dia.
-                </p>
-            </div>
-        </section>
-
+app.innerHTML = `
         <section class="mb-4">
+            <div class="d-flex align-items-end justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                    <h1 class="home-hero-title">Últimas do ${escapeHtml(PORTAL_NAME)}</h1>
+                    <p class="home-hero-sub">Games, filmes, tecnologia e o que mais importa.</p>
+                </div>
+            </div>
             <div class="d-flex flex-wrap gap-2" id="quick-categories">
                 ${state.categories.map(category => `
-                    <a href="${BASE_PATH}/categoria/${category.slug}" data-link class="btn btn-outline-secondary btn-sm">
+                    <a href="${BASE_PATH}/categoria/${category.slug}" data-link class="quick-pill">
                         ${escapeHtml(category.name)}
                     </a>
                 `).join('')}
             </div>
         </section>
 
+        <div id="hero-slot" class="mb-4"></div>
+
+        <p class="section-title">Todas as notícias</p>
         <section>
             <div class="row g-4" id="home-grid"></div>
         </section>
@@ -263,8 +263,12 @@ function renderHomeLayout() {
  * Isso simula scroll infinito na home.
  */
 function appendHomeBatch() {
+    function appendHomeBatch() {
     const grid = document.getElementById('home-grid');
     if (!grid) return;
+
+    const heroSlot = document.getElementById('hero-slot');
+    const isFirst = state.homeCursor === 0;
 
     const nextItems = state.homeNotices.slice(state.homeCursor, state.homeCursor + state.homeBatch);
 
@@ -274,8 +278,37 @@ function appendHomeBatch() {
         return;
     }
 
-    grid.insertAdjacentHTML('beforeend', nextItems.map(renderNoticeCard).join(''));
+    // Primeiro batch: primeiro item vai pro hero, o resto vai pro grid
+    if (isFirst && heroSlot && nextItems.length > 0) {
+        const hero = nextItems[0];
+        const heroCategory = hero.category || {};
+
+        heroSlot.innerHTML = `
+            <a href="${BASE_PATH}/categoria/${heroCategory.slug}/noticia/${hero.slug}"
+               data-link class="hero-banner">
+                <img
+                    src="${buildImageUrl(hero.path_image)}"
+                    alt="${escapeHtml(hero.title)}"
+                    loading="eager"
+                >
+                <div class="hero-banner-overlay"></div>
+                <div class="hero-banner-body">
+                    <span class="hero-banner-category">${escapeHtml(heroCategory.name || '')}</span>
+                    <h2 class="hero-banner-title">${escapeHtml(hero.title)}</h2>
+                    <p class="hero-banner-desc">${escapeHtml(hero.description || '')}</p>
+                </div>
+            </a>
+        `;
+
+        // Grid recebe o restante do primeiro batch
+        const rest = nextItems.slice(1);
+        grid.insertAdjacentHTML('beforeend', rest.map(renderNoticeCard).join(''));
+    } else {
+        grid.insertAdjacentHTML('beforeend', nextItems.map(renderNoticeCard).join(''));
+    }
+
     state.homeCursor += state.homeBatch;
+}
 }
 
 /**
@@ -369,11 +402,11 @@ function renderCategoryHeader(category) {
     const header = document.getElementById('category-header');
     if (!header) return;
 
-    // Substitui o conteúdo do loading pelo conteúdo real da categoria
     header.innerHTML = `
-        <div class="bg-white rounded-4 shadow-sm p-4">
-            <h1 class="fw-bold mb-2">Notícias de ${escapeHtml(category.name)}</h1>
-            <p class="text-muted mb-0">
+        <div class="category-hero">
+            <p class="section-title">${escapeHtml(category.name)}</p>
+            <h1 class="category-hero-title">Notícias de ${escapeHtml(category.name)}</h1>
+            <p class="category-hero-sub">
                 Acompanhe as publicações mais recentes da categoria ${escapeHtml(category.name)}.
             </p>
         </div>
@@ -384,15 +417,23 @@ function renderCategoryHeader(category) {
  * Aqui não existe scroll infinito, então escondemos o sentinel e o loader.
  */
 async function renderArticle(categorySlugFromUrl, noticeSlug) {
-    hideSentinel();
+   hideSentinel();
     hideScrollLoader();
 
     app.innerHTML = `
-        <section class="bg-white rounded-4 shadow-sm p-4">
-            <div class="skeleton mb-4"></div>
-            <div class="skeleton mb-3"></div>
-            <div class="skeleton mb-3"></div>
-        </section>
+        <div class="article-wrap">
+            <div class="article-header">
+                <div class="skeleton mb-3" style="height:2rem; max-width:120px;"></div>
+                <div class="skeleton mb-3" style="height:3rem;"></div>
+                <div class="skeleton" style="height:1rem; max-width:200px;"></div>
+            </div>
+            <div class="skeleton" style="height:420px; border-radius:0;"></div>
+            <div class="article-body">
+                <div class="skeleton mb-3" style="height:1rem;"></div>
+                <div class="skeleton mb-3" style="height:1rem; max-width:80%;"></div>
+                <div class="skeleton" style="height:1rem; max-width:60%;"></div>
+            </div>
+        </div>
     `;
 
     try {
@@ -407,35 +448,34 @@ async function renderArticle(categorySlugFromUrl, noticeSlug) {
 
         setSeoArticle(notice);
 
-        // Se a categoria da URL não bater com a categoria real da notícia,
-        // corrige a URL automaticamente.
         if (categorySlugFromUrl !== notice.category.slug) {
             navigate(`${BASE_PATH}/categoria/${notice.category.slug}/noticia/${notice.slug}`);
             return;
         }
 
         app.innerHTML = `
-            <article class="bg-white rounded-4 shadow-sm p-4 p-md-5 notice-content">
-                <header class="mb-4">
-                    <a href="${BASE_PATH}/categoria/${notice.category.slug}" data-link class="badge text-bg-dark text-decoration-none mb-3">
+            <article class="article-wrap">
+                <header class="article-header">
+                    <a href="${BASE_PATH}/categoria/${notice.category.slug}"
+                       data-link class="article-category-badge">
                         ${escapeHtml(notice.category.name)}
                     </a>
-
-                    <h1 class="fw-bold mb-3">${escapeHtml(notice.title)}</h1>
-                    <p class="lead text-muted mb-3">${escapeHtml(notice.description)}</p>
-                    <p class="text-secondary small mb-0">
+                    <h1 class="article-title">${escapeHtml(notice.title)}</h1>
+                    <p class="article-desc">${escapeHtml(notice.description)}</p>
+                    <div class="article-meta">
+                        <i class="bi bi-calendar3"></i>
                         Publicado em ${formatDate(notice.created_at)}
-                    </p>
+                    </div>
                 </header>
 
-                <figure class="mb-4">
+                <div class="article-image-wrap">
                     <img
                         src="${buildImageUrl(notice.path_image)}"
-                        alt="Imagem da notícia: ${escapeHtml(notice.title)}"
+                        alt="${escapeHtml(notice.title)}"
                         class="article-image"
                         loading="eager"
                     >
-                </figure>
+                </div>
 
                 <div class="article-body">
                     ${renderParagraphs(notice.notice)}
@@ -459,30 +499,28 @@ function renderNoticeCard(notice) {
 
     return `
         <div class="col-md-6 col-lg-4">
-            <article class="card border-0 shadow-sm notice-card">
-                <a href="${BASE_PATH}/categoria/${categorySlug}/noticia/${notice.slug}" data-link class="text-decoration-none">
-                    <img
-                        src="${buildImageUrl(notice.path_image)}"
-                        alt="Imagem da notícia: ${escapeHtml(notice.title)}"
-                        class="card-img-top notice-image"
-                        loading="lazy"
-                    >
-                </a>
-
-                <div class="card-body">
-                    <a href="${BASE_PATH}/categoria/${categorySlug}" data-link class="category-link small text-uppercase text-muted fw-semibold">
+            <article class="card notice-card border-0">
+                <div class="notice-image-wrap">
+                    <a href="${BASE_PATH}/categoria/${categorySlug}" data-link
+                       class="notice-card-badge">
                         ${escapeHtml(categoryName)}
                     </a>
-
-                    <h2 class="h5 mt-2">
-                        <a href="${BASE_PATH}/categoria/${categorySlug}/noticia/${notice.slug}" data-link class="text-dark text-decoration-none">
-                            ${escapeHtml(notice.title)}
-                        </a>
-                    </h2>
-
-                    <p class="card-text text-muted mb-0">
-                        ${escapeHtml(notice.description)}
-                    </p>
+                    <a href="${BASE_PATH}/categoria/${categorySlug}/noticia/${notice.slug}"
+                       data-link class="text-decoration-none">
+                        <img
+                            src="${buildImageUrl(notice.path_image)}"
+                            alt="${escapeHtml(notice.title)}"
+                            class="notice-image"
+                            loading="lazy"
+                        >
+                    </a>
+                </div>
+                <div class="card-body">
+                    <a href="${BASE_PATH}/categoria/${categorySlug}/noticia/${notice.slug}"
+                       data-link class="notice-card-title d-block">
+                        ${escapeHtml(notice.title)}
+                    </a>
+                    <p class="notice-card-desc">${escapeHtml(notice.description || '')}</p>
                 </div>
             </article>
         </div>
@@ -505,7 +543,7 @@ function renderError(message) {
  * Tela 404.
  */
 function renderNotFound() {
-    hideSentinel();
+ hideSentinel();
     hideScrollLoader();
 
     setTitle(`Página não encontrada - ${PORTAL_NAME}`);
@@ -513,11 +551,13 @@ function renderNotFound() {
     updateCanonical(`${SITE_URL}${window.location.pathname.replace(/\/$/, '')}`);
 
     app.innerHTML = `
-        <section class="bg-white rounded-4 shadow-sm p-5 text-center">
-            <h1 class="fw-bold mb-3">404</h1>
-            <p class="text-muted mb-4">Página não encontrada.</p>
-            <a href="${BASE_PATH}" data-link class="btn btn-dark">Voltar para a home</a>
-        </section>
+        <div class="not-found-wrap">
+            <div class="not-found-code">404</div>
+            <p class="text-muted mb-4">Essa página não existe ou foi removida.</p>
+            <a href="${BASE_PATH}" data-link class="quick-pill">
+                <i class="bi bi-house-fill"></i> Voltar para a home
+            </a>
+        </div>
     `;
 }
 
